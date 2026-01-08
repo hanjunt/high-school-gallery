@@ -150,6 +150,19 @@ body {
   }
 }
 
+/* On narrow phones, show three thumbnails per row for better density */
+@media (max-width: 480px) {
+  .gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .gallery img {
+    aspect-ratio: 1 / 1;
+  }
+}
+
 /* Utility class to temporarily disable transitions during theme changes.
    Use `.no-transitions` on `body` to suppress transitions while toggling.
    This prevents a large number of elements from repainting at once. */
