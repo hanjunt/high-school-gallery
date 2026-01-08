@@ -92,6 +92,24 @@ const gallery = document.getElementById("gallery");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.querySelector(".lightbox-img");
 const closeBtn = document.querySelector(".close");
+let _lockedScrollY = 0;
+
+function lockScroll() {
+  _lockedScrollY = window.scrollY || window.pageYOffset;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_lockedScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+}
+
+function unlockScroll() {
+  // restore
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo(0, _lockedScrollY);
+}
 
 // Build gallery
 images.forEach(name => {
@@ -103,6 +121,7 @@ images.forEach(name => {
 
   img.addEventListener("click", () => {
     lightboxImg.src = img.dataset.full;
+    lockScroll();
     lightbox.style.display = "flex";
   });
 
@@ -111,6 +130,7 @@ images.forEach(name => {
 
 // Close lightbox
 closeBtn.onclick = () => {
+  unlockScroll();
   lightbox.style.display = "none";
   lightboxImg.src = "";
 };
