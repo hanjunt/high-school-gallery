@@ -15,7 +15,7 @@ const closeBtn = document.querySelector(".close");
 images.forEach(name => {
   const img = document.createElement("img");
   img.src = `images/thumbs/${name}.webp`;
-  img.dataset.full = `images/full/${name}.jpg`;
+  img.dataset.full = `images/full/${name}.JPG`;
   img.loading = "lazy";
   img.alt = name;
 
