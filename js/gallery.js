@@ -121,13 +121,20 @@ lightbox.onclick = e => {
 
 const toggle = document.getElementById("theme-toggle");
 
-// Apply saved or system theme
+// Apply saved or system theme, but suppress transitions on load so the
+// initial application doesn't animate all thumbnails (which can be slow).
 const savedTheme = localStorage.getItem("theme");
+document.body.classList.add("no-transitions");
 if (savedTheme) {
   document.body.classList.toggle("light", savedTheme === "light");
 } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
   document.body.classList.add("light");
 }
+// Remove the no-transition class on the next animation frame so normal
+// transitions work afterward.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => document.body.classList.remove("no-transitions"));
+});
 
 // Update icon
 function updateIcon() {
@@ -138,10 +145,25 @@ function updateIcon() {
 
 updateIcon();
 
-// Toggle on click
-toggle.addEventListener("click", () => {
-  document.body.classList.toggle("light");
-  const theme = document.body.classList.contains("light") ? "light" : "dark";
-  localStorage.setItem("theme", theme);
-  updateIcon();
-});
+// Toggle on click, but temporarily disable transitions to make the switch
+// instantaneous (avoids repainting dozens of thumbnails with paint-heavy
+// properties).
+function toggleThemeInstant() {
+  // Suppress transitions first
+  document.body.classList.add("no-transitions");
+
+  // Apply the theme change on the next frame so the no-transitions rule
+  // is active when the change happens.
+  requestAnimationFrame(() => {
+    document.body.classList.toggle("light");
+    const theme = document.body.classList.contains("light") ? "light" : "dark";
+    localStorage.setItem("theme", theme);
+    updateIcon();
+
+    // Remove the suppression on the following frame so transitions return
+    // to normal for user interactions.
+    requestAnimationFrame(() => document.body.classList.remove("no-transitions"));
+  });
+}
+
+toggle.addEventListener("click", toggleThemeInstant);

@@ -34,7 +34,8 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   line-height: 1.5;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  /* Keep a short transition for backgrounds/text but avoid long repaints */
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ===== Header & Title ===== */
@@ -45,7 +46,7 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1rem;
-  transition: background-color 0.5s ease;
+  transition: background-color 0.25s ease;
 }
 
 .title {
@@ -88,10 +89,10 @@ body {
   background-color: var(--thumb-bg);
   border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.2s ease,
-              box-shadow 0.2s ease,
-              opacity 0.2s ease,
-              background-color 0.5s ease;
+  /* Only animate transform/opacity (GPU-friendly). Avoid animating
+     background-color or box-shadow across many thumbnails — those
+     force expensive repaints which slow down theme toggles. */
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .gallery img:hover {
@@ -110,7 +111,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  transition: background 0.5s ease;
+  transition: background 0.35s ease;
 }
 
 .lightbox-img {
@@ -147,4 +148,12 @@ body {
     gap: 8px;
     padding: 8px;
   }
+}
+
+/* Utility class to temporarily disable transitions during theme changes.
+   Use `.no-transitions` on `body` to suppress transitions while toggling.
+   This prevents a large number of elements from repainting at once. */
+.no-transitions,
+.no-transitions * {
+  transition: none !important;
 }
