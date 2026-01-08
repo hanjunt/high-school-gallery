@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid meet">
+  <title>Camera favicon</title>
+  <!-- Background rounded square -->
+  <rect width="256" height="256" rx="32" fill="#2b6cb0"/>
+  <!-- Camera body -->
+  <rect x="24" y="56" width="208" height="144" rx="24" fill="#0f172a"/>
+  <!-- Top shutter bump -->
+  <rect x="48" y="32" width="48" height="32" rx="8" fill="#0f172a"/>
+  <!-- Lens outer ring -->
+  <circle cx="128" cy="128" r="40" fill="#60a5fa"/>
+  <!-- Lens inner circle -->
+  <circle cx="128" cy="128" r="24" fill="#0b1220"/>
+  <!-- Highlight -->
+  <ellipse cx="144" cy="112" rx="12" ry="6" fill="rgba(255,255,255,0.24)"/>
+  <!-- Small flash / detail -->
+  <rect x="184" y="72" width="24" height="24" rx="4" fill="#fbbf24"/>
+</svg>
