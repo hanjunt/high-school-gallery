@@ -117,10 +117,12 @@ images.forEach(name => {
   img.src = `images/thumbs/${name}.webp`;
   img.dataset.full = `images/full/${name}.JPG`;
   img.loading = "lazy";
-  img.alt = name;
+  img.alt = `Artwork ${name} — 山东省实验中学东校 (thumbnail)`;
+  img.title = `Artwork ${name}`;
 
   img.addEventListener("click", () => {
     lightboxImg.src = img.dataset.full;
+    lightboxImg.alt = `Artwork ${name} — 山东省实验中学东校 (full size)`;
     lockScroll();
     lightbox.style.display = "flex";
   });

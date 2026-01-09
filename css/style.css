@@ -49,10 +49,25 @@ body {
   transition: background-color 0.25s ease;
 }
 
+/* Stack the site title and lead vertically while keeping the header
+   as a flex container so the theme toggle remains on the right. */
+.site-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .title {
   font-size: 1.6rem;
   font-weight: 500;
   letter-spacing: 0.5px;
+}
+
+.lead {
+  margin: 0;
+  color: var(--fg);
+  opacity: 0.9;
+  font-size: 0.95rem;
 }
 
 /* ===== Theme toggle button ===== */

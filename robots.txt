@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://hanjunt.github.io/high-school-gallery/sitemap.xml
