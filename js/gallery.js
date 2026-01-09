@@ -100,6 +100,15 @@ function lockScroll() {
   document.body.style.top = `-${_lockedScrollY}px`;
   document.body.style.left = '0';
   document.body.style.right = '0';
+  // Prevent overscroll / pull-to-refresh gestures on mobile while the
+  // lightbox is open. This reduces cases where tapping/dragging the
+  // backdrop can trigger a reload or navigation on some devices.
+  try {
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overscrollBehavior = 'none';
+  } catch (e) {
+    // ignore if not supported
+  }
 }
 
 function unlockScroll() {
@@ -108,6 +117,12 @@ function unlockScroll() {
   document.body.style.top = '';
   document.body.style.left = '';
   document.body.style.right = '';
+  try {
+    document.documentElement.style.overscrollBehavior = '';
+    document.body.style.overscrollBehavior = '';
+  } catch (e) {
+    // ignore
+  }
   window.scrollTo(0, _lockedScrollY);
 }
 

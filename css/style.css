@@ -128,6 +128,9 @@ body {
   justify-content: center;
   padding: 20px;
   transition: background 0.35s ease;
+  /* Prevent touch gestures (scroll chaining / pull-to-refresh) while
+     the lightbox is visible on mobile devices. */
+  touch-action: none;
 }
 
 .lightbox-img {
