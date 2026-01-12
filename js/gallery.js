@@ -18,13 +18,20 @@ const closeBtn = document.querySelector('.close');
 const toggle = document.getElementById('theme-toggle');
 
 let _lockedScrollY = 0;
+let scrollLocked = false;
+
+/* ---------------- Scroll Lock (mobile-safe) ---------------- */
 
 function lockScroll() {
+  if (scrollLocked) return;
+  scrollLocked = true;
+
   _lockedScrollY = window.scrollY || window.pageYOffset;
   document.body.style.position = 'fixed';
   document.body.style.top = `-${_lockedScrollY}px`;
   document.body.style.left = '0';
   document.body.style.right = '0';
+
   try {
     document.documentElement.style.overscrollBehavior = 'none';
     document.body.style.overscrollBehavior = 'none';
@@ -32,16 +39,23 @@ function lockScroll() {
 }
 
 function unlockScroll() {
+  if (!scrollLocked) return;
+  scrollLocked = false;
+
   document.body.style.position = '';
   document.body.style.top = '';
   document.body.style.left = '';
   document.body.style.right = '';
+
   try {
     document.documentElement.style.overscrollBehavior = '';
     document.body.style.overscrollBehavior = '';
   } catch (e) {}
+
   window.scrollTo(0, _lockedScrollY);
 }
+
+/* ---------------- Utilities ---------------- */
 
 function preloadImage(url) {
   return new Promise(resolve => {
@@ -54,8 +68,13 @@ function preloadImage(url) {
 }
 
 function isMobileLike() {
-  return window.matchMedia('(max-width: 600px)').matches || window.matchMedia('(pointer: coarse)').matches;
+  return (
+    window.matchMedia('(max-width: 600px)').matches ||
+    window.matchMedia('(pointer: coarse)').matches
+  );
 }
+
+/* ---------------- Lightbox ---------------- */
 
 function openLightbox({ thumbSrc, fullSrc, name }) {
   lightbox.classList.add('loading');
@@ -63,14 +82,22 @@ function openLightbox({ thumbSrc, fullSrc, name }) {
   lightboxImg.alt = `Artwork ${name} — 山东省实验中学东校 (loading)`;
   lightbox.style.display = 'flex';
 
-  if (isMobileLike()) lightbox.classList.add('block-outside');
-  else lightbox.classList.remove('block-outside');
+  if (isMobileLike()) {
+    lightbox.classList.add('block-outside');
+  } else {
+    lightbox.classList.remove('block-outside');
+  }
+
+  // 🔑 FIX: lock scroll immediately (before async preload)
+  lockScroll();
 
   preloadImage(fullSrc).then(result => {
+    // Guard: lightbox might have been closed already
+    if (lightbox.style.display === 'none') return;
+
     lightboxImg.src = result.src;
     lightboxImg.alt = `Artwork ${name} — 山东省实验中学东校 (full size)`;
     lightbox.classList.remove('loading');
-    lockScroll();
   });
 }
 
@@ -80,6 +107,8 @@ function closeLightbox() {
   lightbox.style.display = 'none';
   lightboxImg.src = '';
 }
+
+/* ---------------- Gallery ---------------- */
 
 function createThumbnail(name) {
   const img = document.createElement('img');
@@ -91,7 +120,11 @@ function createThumbnail(name) {
   img.title = `Artwork ${name}`;
 
   img.addEventListener('click', () => {
-    openLightbox({ thumbSrc: img.dataset.src || img.src, fullSrc: img.dataset.full, name });
+    openLightbox({
+      thumbSrc: img.dataset.src || img.src,
+      fullSrc: img.dataset.full,
+      name
+    });
   });
 
   gallery.appendChild(img);
@@ -120,23 +153,32 @@ function createThumbnail(name) {
 
 images.forEach(createThumbnail);
 
+/* ---------------- Events ---------------- */
+
 closeBtn.onclick = closeLightbox;
 
 lightbox.onclick = e => {
   if (e.target === lightbox) {
-    if (!lightbox.classList.contains('block-outside')) closeLightbox();
+    if (!lightbox.classList.contains('block-outside')) {
+      closeLightbox();
+    }
   }
 };
 
-// Theme toggle behavior (keeps original behavior)
+/* ---------------- Theme Toggle ---------------- */
+
 const savedTheme = localStorage.getItem('theme');
 document.body.classList.add('no-transitions');
+
 if (savedTheme) {
   document.body.classList.toggle('light', savedTheme === 'light');
 } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
   document.body.classList.add('light');
 }
-requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('no-transitions')));
+
+requestAnimationFrame(() =>
+  requestAnimationFrame(() => document.body.classList.remove('no-transitions'))
+);
 
 function updateIcon() {
   toggle.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
@@ -150,7 +192,9 @@ function toggleThemeInstant() {
     const theme = document.body.classList.contains('light') ? 'light' : 'dark';
     localStorage.setItem('theme', theme);
     updateIcon();
-    requestAnimationFrame(() => document.body.classList.remove('no-transitions'));
+    requestAnimationFrame(() =>
+      document.body.classList.remove('no-transitions')
+    );
   });
 }
 
