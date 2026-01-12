@@ -150,3 +150,26 @@ body {
 .no-transitions * {
   transition: none !important;
 }
+
+/* ===== Instagram-style mobile grid ===== */
+@media (max-width: 600px) {
+  .gallery {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .gallery img {
+    border-radius: 0; /* optional Instagram look */
+  }
+
+  .gallery img:active {
+    opacity: 0.85; /* tap feedback */
+  }
+
+  @media (hover: none) {
+    .gallery img:hover {
+      transform: none;
+    }
+  }
+}
