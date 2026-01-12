@@ -17,42 +17,14 @@ const lightboxImg = document.querySelector('.lightbox-img');
 const closeBtn = document.querySelector('.close');
 const toggle = document.getElementById('theme-toggle');
 
-let _lockedScrollY = 0;
-let scrollLocked = false;
-
-/* ---------------- Scroll Lock (mobile-safe) ---------------- */
+/* ---------------- Scroll Lock (Safari-safe) ---------------- */
 
 function lockScroll() {
-  if (scrollLocked) return;
-  scrollLocked = true;
-
-  _lockedScrollY = window.scrollY || window.pageYOffset;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${_lockedScrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-
-  try {
-    document.documentElement.style.overscrollBehavior = 'none';
-    document.body.style.overscrollBehavior = 'none';
-  } catch (e) {}
+  document.documentElement.style.overflow = 'hidden';
 }
 
 function unlockScroll() {
-  if (!scrollLocked) return;
-  scrollLocked = false;
-
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-
-  try {
-    document.documentElement.style.overscrollBehavior = '';
-    document.body.style.overscrollBehavior = '';
-  } catch (e) {}
-
-  window.scrollTo(0, _lockedScrollY);
+  document.documentElement.style.overflow = '';
 }
 
 /* ---------------- Utilities ---------------- */
@@ -88,24 +60,31 @@ function openLightbox({ thumbSrc, fullSrc, name }) {
     lightbox.classList.remove('block-outside');
   }
 
-  // 🔑 FIX: lock scroll immediately (before async preload)
   lockScroll();
 
   preloadImage(fullSrc).then(result => {
-    // Guard: lightbox might have been closed already
     if (lightbox.style.display === 'none') return;
-
     lightboxImg.src = result.src;
     lightboxImg.alt = `Artwork ${name} — 山东省实验中学东校 (full size)`;
     lightbox.classList.remove('loading');
   });
 }
 
-function closeLightbox() {
-  unlockScroll();
+function closeLightbox(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  lightbox.style.pointerEvents = 'none';
   lightbox.classList.remove('block-outside');
   lightbox.style.display = 'none';
   lightboxImg.src = '';
+
+  requestAnimationFrame(() => {
+    unlockScroll();
+    lightbox.style.pointerEvents = '';
+  });
 }
 
 /* ---------------- Gallery ---------------- */
@@ -135,7 +114,7 @@ function createThumbnail(name) {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const el = entry.target;
-            if (el.dataset && el.dataset.src) {
+            if (el.dataset?.src) {
               el.src = el.dataset.src;
               el.removeAttribute('data-src');
             }
@@ -155,15 +134,14 @@ images.forEach(createThumbnail);
 
 /* ---------------- Events ---------------- */
 
-closeBtn.onclick = closeLightbox;
+closeBtn.addEventListener('click', closeLightbox, { passive: false });
+closeBtn.addEventListener('touchend', closeLightbox, { passive: false });
 
-lightbox.onclick = e => {
-  if (e.target === lightbox) {
-    if (!lightbox.classList.contains('block-outside')) {
-      closeLightbox();
-    }
+lightbox.addEventListener('click', e => {
+  if (e.target === lightbox && !lightbox.classList.contains('block-outside')) {
+    closeLightbox(e);
   }
-};
+});
 
 /* ---------------- Theme Toggle ---------------- */
 
@@ -189,8 +167,10 @@ function toggleThemeInstant() {
   document.body.classList.add('no-transitions');
   requestAnimationFrame(() => {
     document.body.classList.toggle('light');
-    const theme = document.body.classList.contains('light') ? 'light' : 'dark';
-    localStorage.setItem('theme', theme);
+    localStorage.setItem(
+      'theme',
+      document.body.classList.contains('light') ? 'light' : 'dark'
+    );
     updateIcon();
     requestAnimationFrame(() =>
       document.body.classList.remove('no-transitions')
