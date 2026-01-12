@@ -133,6 +133,19 @@ body {
   touch-action: none;
 }
 
+/* When open on small/touch devices, disable pointer events on the
+   backdrop so only the image and close button receive clicks. This
+   prevents accidental closes when users tap outside the photo. */
+.lightbox.block-outside {
+  /* Ensure the lightbox container intercepts pointer events so taps
+     on the backdrop do not pass through to thumbnails behind it. */
+  pointer-events: auto;
+}
+.lightbox.block-outside .lightbox-img,
+.lightbox.block-outside .close {
+  pointer-events: auto;
+}
+
 .lightbox-img {
   max-width: 95vw;
   max-height: 95vh;
@@ -208,9 +221,6 @@ body {
     padding: 6px;
   }
 
-  .gallery img {
-    aspect-ratio: 1 / 1;
-  }
 }
 
 /* Utility class to temporarily disable transitions during theme changes.
